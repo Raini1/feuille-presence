@@ -1,4 +1,4 @@
-```html
+
 <!DOCTYPE html>
 <html lang="fr">
 
@@ -7,7 +7,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
-  <title>Feuille de Présence</title>
+  <title>Feuille de Présence V2</title>
 
   <script src="https://cdn.tailwindcss.com"></script>
 
@@ -17,7 +17,7 @@
 
 <body class="bg-slate-100 p-4 md:p-8">
 
-<div class="max-w-5xl mx-auto bg-white rounded-3xl shadow-xl overflow-hidden">
+<div class="max-w-6xl mx-auto bg-white rounded-3xl shadow-xl overflow-hidden">
 
   <!-- HEADER -->
 
@@ -45,17 +45,41 @@
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 
-        <input class="border rounded-xl p-3" placeholder="Intitulé Formation">
+        <input
+          id="formation"
+          class="border rounded-xl p-3"
+          placeholder="Intitulé Formation"
+        >
 
-        <input class="border rounded-xl p-3" placeholder="Organisme">
+        <input
+          id="organisme"
+          class="border rounded-xl p-3"
+          placeholder="Organisme"
+        >
 
-        <input type="date" class="border rounded-xl p-3">
+        <input
+          id="dateDebut"
+          type="date"
+          class="border rounded-xl p-3"
+        >
 
-        <input type="date" class="border rounded-xl p-3">
+        <input
+          id="dateFin"
+          type="date"
+          class="border rounded-xl p-3"
+        >
 
-        <input class="border rounded-xl p-3" placeholder="07h00 à 14h00">
+        <input
+          id="horaires"
+          class="border rounded-xl p-3"
+          placeholder="07h00 à 14h00"
+        >
 
-        <input class="border rounded-xl p-3" placeholder="Nom formateur">
+        <input
+          id="formateur"
+          class="border rounded-xl p-3"
+          placeholder="Nom formateur"
+        >
 
       </div>
 
@@ -192,15 +216,7 @@
 
           </thead>
 
-          <tbody id="presence-table">
-
-            <tr>
-              <td colspan="5" class="p-6 text-center text-slate-400">
-                Aucune présence enregistrée.
-              </td>
-            </tr>
-
-          </tbody>
+          <tbody id="presence-table"></tbody>
 
         </table>
 
@@ -214,15 +230,15 @@
 
 <script>
 
+const API_URL = "https://script.google.com/macros/s/AKfycbwd7eZMpW5v7RAE6IfBIuC60kLn6-yvLb8o7FVAn88LUAWtdJaGIynKKe0mjNvSpFpnFA/exec";
+
 const canvas = document.getElementById("signature-pad");
 
 const signaturePad = new SignaturePad(canvas);
 
-const bouton = document.getElementById("submit-btn");
+const table = document.getElementById("presence-table");
 
 const clearBtn = document.getElementById("clear-signature");
-
-const table = document.getElementById("presence-table");
 
 clearBtn.addEventListener("click", () => {
 
@@ -230,7 +246,76 @@ clearBtn.addEventListener("click", () => {
 
 });
 
-bouton.addEventListener("click", async () => {
+function afficherPresences(data) {
+
+  table.innerHTML = "";
+
+  if (data.length === 0) {
+
+    table.innerHTML = `
+      <tr>
+        <td colspan="5" class="p-6 text-center text-slate-400">
+          Aucune présence enregistrée.
+        </td>
+      </tr>
+    `;
+
+    return;
+
+  }
+
+  data.forEach(presence => {
+
+    const row = `
+      <tr class="border-t">
+
+        <td class="p-4">${presence.nom}</td>
+
+        <td class="p-4">${presence.prenom}</td>
+
+        <td class="p-4">${presence.service}</td>
+
+        <td class="p-4">${presence.heure}</td>
+
+        <td class="p-4">
+          <img
+            src="${presence.signature}"
+            class="h-12"
+          />
+        </td>
+
+      </tr>
+    `;
+
+    table.innerHTML += row;
+
+  });
+
+}
+
+async function chargerPresences() {
+
+  const response = await fetch(API_URL);
+
+  const data = await response.json();
+
+  afficherPresences(data);
+
+}
+
+chargerPresences();
+
+document.getElementById("submit-btn").addEventListener("click", async () => {
+
+  const formation = document.getElementById("formation").value;
+
+  const organisme = document.getElementById("organisme").value;
+
+  const dateDebut = document.getElementById("dateDebut").value;
+
+  const dateFin = document.getElementById("dateFin").value;
+
+  const formateur = document.getElementById("formateur").value;
 
   const nom = document.getElementById("nom").value;
 
@@ -259,46 +344,32 @@ bouton.addEventListener("click", async () => {
   const signature = signaturePad.toDataURL();
 
   const data = {
+
+    formation,
+    organisme,
+    dateDebut,
+    dateFin,
+    formateur,
+
     nom,
     prenom,
     service,
     heure,
     signature
+
   };
 
-  await fetch(
-    "https://script.google.com/macros/s/AKfycbwd7eZMpW5v7RAE6IfBIuC60kLn6-yvLb8o7FVAn88LUAWtdJaGIynKKe0mjNvSpFpnFA/exec",
-    {
-      method: "POST",
-      body: JSON.stringify(data)
-    }
-  );
+  await fetch(API_URL, {
 
-  const row = `
-    <tr class="border-t">
-      <td class="p-4">${nom}</td>
-      <td class="p-4">${prenom}</td>
-      <td class="p-4">${service}</td>
-      <td class="p-4">${heure}</td>
-      <td class="p-4">
-        <img src="${signature}" class="h-12"/>
-      </td>
-    </tr>
-  `;
+    method: "POST",
 
-  if (table.innerHTML.includes("Aucune présence")) {
+    body: JSON.stringify(data)
 
-    table.innerHTML = "";
+  });
 
-  }
-
-  table.innerHTML += row;
+  await chargerPresences();
 
   alert("Présence enregistrée ✅");
-
-  document.getElementById("nom").value = "";
-  document.getElementById("prenom").value = "";
-  document.getElementById("service").value = "";
 
   signaturePad.clear();
 
@@ -318,7 +389,7 @@ document.getElementById("reset-btn").addEventListener("click", () => {
       </tr>
     `;
 
-    alert("Présences réinitialisées ✅");
+    alert("Réinitialisation visuelle effectuée ✅");
 
   } else {
 
@@ -332,3 +403,5 @@ document.getElementById("reset-btn").addEventListener("click", () => {
 
 </body>
 </html>
+
+
