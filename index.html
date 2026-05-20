@@ -39,6 +39,56 @@
 
   <div class="p-6 md:p-8 space-y-10">
 
+    <!-- INFORMATIONS FORMATION -->
+
+    <div>
+
+      <h2 class="text-2xl font-bold mb-6">
+        Informations Formation
+      </h2>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+        <input
+          id="formation"
+          class="border rounded-xl p-3"
+          placeholder="Intitulé Formation"
+        />
+
+        <input
+          id="organisme"
+          class="border rounded-xl p-3"
+          placeholder="Organisme"
+        />
+
+        <input
+          id="dateDebut"
+          type="date"
+          class="border rounded-xl p-3"
+        />
+
+        <input
+          id="dateFin"
+          type="date"
+          class="border rounded-xl p-3"
+        />
+
+        <input
+          id="horaires"
+          class="border rounded-xl p-3"
+          placeholder="07h00 à 14h00"
+        />
+
+        <input
+          id="formateur"
+          class="border rounded-xl p-3"
+          placeholder="Nom formateur"
+        />
+
+      </div>
+
+    </div>
+
     <!-- QR CODE -->
 
     <div class="bg-slate-50 rounded-2xl p-6 border border-dashed text-center">
@@ -52,9 +102,13 @@
         class="w-56 h-56 rounded-2xl object-cover mx-auto"
       />
 
+      <p class="text-slate-500 mt-4">
+        Les stagiaires scannent ce QR code pour signer leur présence.
+      </p>
+
     </div>
 
-    <!-- FORMULAIRE -->
+    <!-- EMARGEMENT -->
 
     <div>
 
@@ -212,41 +266,18 @@ async function chargerPresences() {
 
     table.innerHTML = "";
 
-    if (data.length === 0) {
-
-      table.innerHTML = `
-        <tr>
-          <td colspan="5"
-            class="p-6 text-center text-slate-400">
-            Aucune présence enregistrée
-          </td>
-        </tr>
-      `;
-
-      return;
-
-    }
-
     data.forEach((presence) => {
 
       table.innerHTML += `
         <tr class="border-t">
 
-          <td class="p-4">
-            ${presence.nom}
-          </td>
+          <td class="p-4">${presence.nom}</td>
 
-          <td class="p-4">
-            ${presence.prenom}
-          </td>
+          <td class="p-4">${presence.prenom}</td>
 
-          <td class="p-4">
-            ${presence.service}
-          </td>
+          <td class="p-4">${presence.service}</td>
 
-          <td class="p-4">
-            ${presence.heure}
-          </td>
+          <td class="p-4">${presence.heure}</td>
 
           <td class="p-4">
 
@@ -278,36 +309,39 @@ document
 .getElementById("submit-btn")
 .addEventListener("click", async () => {
 
-  const nom =
-    document.getElementById("nom").value;
+  const data = {
 
-  const prenom =
-    document.getElementById("prenom").value;
+    formation:
+      document.getElementById("formation").value,
 
-  const service =
-    document.getElementById("service").value;
+    organisme:
+      document.getElementById("organisme").value,
 
-  const heure =
-    document.getElementById("heure").value;
+    dateDebut:
+      document.getElementById("dateDebut").value,
 
-  if (!nom || !prenom) {
+    dateFin:
+      document.getElementById("dateFin").value,
 
-    alert("Veuillez remplir les champs");
+    formateur:
+      document.getElementById("formateur").value,
 
-    return;
+    nom:
+      document.getElementById("nom").value,
 
-  }
+    prenom:
+      document.getElementById("prenom").value,
 
-  if (signaturePad.isEmpty()) {
+    service:
+      document.getElementById("service").value,
 
-    alert("Veuillez signer");
+    heure:
+      document.getElementById("heure").value,
 
-    return;
+    signature:
+      signaturePad.toDataURL()
 
-  }
-
-  const signature =
-    signaturePad.toDataURL();
+  };
 
   try {
 
@@ -315,25 +349,13 @@ document
 
       method: "POST",
 
-      body: JSON.stringify({
-
-        nom,
-        prenom,
-        service,
-        heure,
-        signature
-
-      })
+      body: JSON.stringify(data)
 
     });
 
     alert("Présence enregistrée ✅");
 
     signaturePad.clear();
-
-    document.getElementById("nom").value = "";
-    document.getElementById("prenom").value = "";
-    document.getElementById("service").value = "";
 
     chargerPresences();
 
@@ -372,6 +394,7 @@ document
 
 </body>
 </html>
+
 
 
 
