@@ -367,7 +367,9 @@ document.getElementById("submit-btn").addEventListener("click", async () => {
 
 };
 
-  await fetch(API_URL, {
+try {
+
+  const response = await fetch(API_URL, {
 
     method: "POST",
 
@@ -375,11 +377,50 @@ document.getElementById("submit-btn").addEventListener("click", async () => {
 
   });
 
-  await chargerPresences();
+  if (response.ok) {
 
-  alert("Présence enregistrée ✅");
+    alert("Présence enregistrée ✅");
 
-  signaturePad.clear();
+    const row = `
+      <tr class="border-t">
+
+        <td class="p-4">${nom}</td>
+
+        <td class="p-4">${prenom}</td>
+
+        <td class="p-4">${service}</td>
+
+        <td class="p-4">${heure}</td>
+
+        <td class="p-4">
+          <img
+            src="${signature}"
+            class="h-12"
+          />
+        </td>
+
+      </tr>
+    `;
+
+    table.innerHTML += row;
+
+    signaturePad.clear();
+
+  } else {
+
+    alert("Erreur lors de l'enregistrement");
+
+  }
+
+} catch(error) {
+
+  console.error(error);
+
+  alert("Erreur JavaScript");
+
+}
+
+
 
 });
 
