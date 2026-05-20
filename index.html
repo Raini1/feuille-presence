@@ -289,6 +289,21 @@ function afficherPresences(data) {
 
     table.innerHTML += row;
 
+const presences = JSON.parse(localStorage.getItem("presences")) || [];
+
+presences.push({
+  nom,
+  prenom,
+  service,
+  heure,
+  signature
+});
+
+localStorage.setItem(
+  "presences",
+  JSON.stringify(presences)
+);
+ 
   });
 
 }
@@ -354,7 +369,45 @@ async function chargerPresences() {
 
 }
 
-chargerPresences();
+const presencesSauvegardees =
+  JSON.parse(localStorage.getItem("presences")) || [];
+
+if (presencesSauvegardees.length > 0) {
+
+  table.innerHTML = "";
+
+  presencesSauvegardees.forEach((presence) => {
+
+    const row = `
+      <tr class="border-t">
+
+        <td class="p-4">${presence.nom}</td>
+
+        <td class="p-4">${presence.prenom}</td>
+
+        <td class="p-4">${presence.service}</td>
+
+        <td class="p-4">${presence.heure}</td>
+
+        <td class="p-4">
+
+          <img
+            src="${presence.signature}"
+            class="h-12"
+          />
+
+        </td>
+
+      </tr>
+    `;
+
+    table.innerHTML += row;
+
+  });
+
+}
+
+
 
 document.getElementById("submit-btn").addEventListener("click", async () => {
 
@@ -490,6 +543,8 @@ document.getElementById("reset-btn").addEventListener("click", () => {
     `;
 
     alert("Réinitialisation visuelle effectuée ✅");
+localStorage.removeItem("presences");
+
 
   } else {
 
