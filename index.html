@@ -108,7 +108,7 @@
 
     </div>
 
-    <!-- EMARGEMENT -->
+    <!-- FORMULAIRE -->
 
     <div>
 
@@ -195,12 +195,23 @@
           Tableau des Présences
         </h2>
 
-        <button
-          id="reset-btn"
-          class="bg-red-500 text-white px-5 py-3 rounded-2xl font-semibold"
-        >
-          Réinitialiser les présences
-        </button>
+        <div class="flex gap-3 flex-wrap">
+
+          <button
+            id="export-btn"
+            class="bg-emerald-500 text-white px-5 py-3 rounded-2xl font-semibold"
+          >
+            Export CSV
+          </button>
+
+          <button
+            id="reset-btn"
+            class="bg-red-500 text-white px-5 py-3 rounded-2xl font-semibold"
+          >
+            Réinitialiser
+          </button>
+
+        </div>
 
       </div>
 
@@ -215,7 +226,6 @@
               <th class="text-left p-4">Prénom</th>
               <th class="text-left p-4">Service</th>
               <th class="text-left p-4">Heure</th>
-              <th class="text-left p-4">Signature</th>
             </tr>
 
           </thead>
@@ -234,9 +244,6 @@
 
 <script>
 
-const API_URL =
-"https://script.google.com/macros/s/AKfycbwd7eZMpW5v7RAE6IfBIuC60kLn6-yvLb8o7FVAn88LUAWtdJaGIynKKe0mjNvSpFpnFA/exec";
-
 const table =
 document.getElementById("presence-table");
 
@@ -246,6 +253,69 @@ document.getElementById("signature-pad");
 const signaturePad =
 new SignaturePad(canvas);
 
+let presences =
+JSON.parse(
+  localStorage.getItem("presences")
+) || [];
+
+function sauvegarderPresences() {
+
+  localStorage.setItem(
+    "presences",
+    JSON.stringify(presences)
+  );
+
+}
+
+function afficherPresences() {
+
+  table.innerHTML = "";
+
+  if (presences.length === 0) {
+
+    table.innerHTML = `
+      <tr>
+        <td colspan="4"
+          class="p-6 text-center text-slate-400">
+          Aucune présence enregistrée
+        </td>
+      </tr>
+    `;
+
+    return;
+
+  }
+
+  presences.forEach((presence) => {
+
+    table.innerHTML += `
+      <tr class="border-t">
+
+        <td class="p-4">
+          ${presence.nom}
+        </td>
+
+        <td class="p-4">
+          ${presence.prenom}
+        </td>
+
+        <td class="p-4">
+          ${presence.service}
+        </td>
+
+        <td class="p-4">
+          ${presence.heure}
+        </td>
+
+      </tr>
+    `;
+
+  });
+
+}
+
+afficherPresences();
+
 document
 .getElementById("clear-signature")
 .addEventListener("click", () => {
@@ -254,118 +324,58 @@ document
 
 });
 
-async function chargerPresences() {
-
-  try {
-
-    const response =
-      await fetch(API_URL);
-
-    const data =
-      await response.json();
-
-    table.innerHTML = "";
-
-    data.forEach((presence) => {
-
-      table.innerHTML += `
-        <tr class="border-t">
-
-          <td class="p-4">${presence.nom}</td>
-
-          <td class="p-4">${presence.prenom}</td>
-
-          <td class="p-4">${presence.service}</td>
-
-          <td class="p-4">${presence.heure}</td>
-
-          <td class="p-4">
-
-            <img
-              src="${presence.signature}"
-              class="h-12"
-            />
-
-          </td>
-
-        </tr>
-      `;
-
-    });
-
-  } catch(error) {
-
-    console.error(error);
-
-  }
-
-}
-
-chargerPresences();
-
-setInterval(chargerPresences, 3000);
-
 document
 .getElementById("submit-btn")
-.addEventListener("click", async () => {
+.addEventListener("click", () => {
 
-  const data = {
+  const nom =
+    document.getElementById("nom").value;
 
-    formation:
-      document.getElementById("formation").value,
+  const prenom =
+    document.getElementById("prenom").value;
 
-    organisme:
-      document.getElementById("organisme").value,
+  const service =
+    document.getElementById("service").value;
 
-    dateDebut:
-      document.getElementById("dateDebut").value,
+  const heure =
+    document.getElementById("heure").value;
 
-    dateFin:
-      document.getElementById("dateFin").value,
+  if (!nom || !prenom) {
 
-    formateur:
-      document.getElementById("formateur").value,
+    alert("Veuillez remplir les champs");
 
-    nom:
-      document.getElementById("nom").value,
-
-    prenom:
-      document.getElementById("prenom").value,
-
-    service:
-      document.getElementById("service").value,
-
-    heure:
-      document.getElementById("heure").value,
-
-    signature:
-      signaturePad.toDataURL()
-
-  };
-
-  try {
-
-    await fetch(API_URL, {
-
-      method: "POST",
-
-      body: JSON.stringify(data)
-
-    });
-
-    alert("Présence enregistrée ✅");
-
-    signaturePad.clear();
-
-    chargerPresences();
-
-  } catch(error) {
-
-    console.error(error);
-
-    alert("Erreur");
+    return;
 
   }
+
+  if (signaturePad.isEmpty()) {
+
+    alert("Veuillez signer");
+
+    return;
+
+  }
+
+  presences.push({
+
+    nom,
+    prenom,
+    service,
+    heure
+
+  });
+
+  sauvegarderPresences();
+
+  afficherPresences();
+
+  alert("Présence enregistrée ✅");
+
+  signaturePad.clear();
+
+  document.getElementById("nom").value = "";
+  document.getElementById("prenom").value = "";
+  document.getElementById("service").value = "";
 
 });
 
@@ -378,9 +388,13 @@ document
 
   if (password === "admin.edfaudreyfred") {
 
-    table.innerHTML = "";
+    presences = [];
 
-    alert("Réinitialisation visuelle effectuée");
+    sauvegarderPresences();
+
+    afficherPresences();
+
+    alert("Présences réinitialisées ✅");
 
   } else {
 
@@ -390,10 +404,46 @@ document
 
 });
 
+document
+.getElementById("export-btn")
+.addEventListener("click", () => {
+
+  let csv =
+    "Nom,Prénom,Service,Heure\n";
+
+  presences.forEach((p) => {
+
+    csv +=
+      `${p.nom},${p.prenom},${p.service},${p.heure}\n`;
+
+  });
+
+  const blob =
+    new Blob([csv], {
+      type: "text/csv"
+    });
+
+  const url =
+    window.URL.createObjectURL(blob);
+
+  const a =
+    document.createElement("a");
+
+  a.href = url;
+
+  a.download =
+    "presences.csv";
+
+  a.click();
+
+});
+
 </script>
 
 </body>
 </html>
+
+
 
 
 
