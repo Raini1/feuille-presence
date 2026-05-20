@@ -295,13 +295,65 @@ function afficherPresences(data) {
 
 async function chargerPresences() {
 
-  const response = await fetch(API_URL);
+  try {
 
-  const data = await response.json();
+    const response = await fetch(API_URL);
 
-  afficherPresences(data);
+    const data = await response.json();
+
+    table.innerHTML = "";
+
+    if (data.length === 0) {
+
+      table.innerHTML = `
+        <tr>
+          <td colspan="5" class="p-6 text-center text-slate-400">
+            Aucune présence enregistrée.
+          </td>
+        </tr>
+      `;
+
+      return;
+
+    }
+
+    data.forEach((presence) => {
+
+      const row = `
+        <tr class="border-t">
+
+          <td class="p-4">${presence.nom || ""}</td>
+
+          <td class="p-4">${presence.prenom || ""}</td>
+
+          <td class="p-4">${presence.service || ""}</td>
+
+          <td class="p-4">${presence.heure || ""}</td>
+
+          <td class="p-4">
+
+            <img
+              src="${presence.signature || ""}"
+              class="h-12"
+            />
+
+          </td>
+
+        </tr>
+      `;
+
+      table.innerHTML += row;
+
+    });
+
+  } catch(error) {
+
+    console.error(error);
+
+  }
 
 }
+
 
 chargerPresences();
 
