@@ -101,5 +101,35 @@
 
 </div>
 
+  <script>
+
+const bouton = document.querySelector("button");
+
+bouton.addEventListener("click", async () => {
+
+  const inputs = document.querySelectorAll("input");
+
+  const data = {
+    nom: inputs[6].value,
+    prenom: inputs[7].value,
+    service: inputs[8].value,
+    heure: inputs[9].value,
+    signature: "signature"
+  };
+
+  await fetch("https://script.google.com/macros/s/AKfycbwd7eZMpW5v7RAE6IfBIuC60kLn6-yvLb8o7FVAn88LUAWtdJaGIynKKe0mjNvSpFpnFA/exec", {
+
+    method: "POST",
+
+    body: JSON.stringify(data)
+
+  });
+
+  alert("Présence enregistrée ✅");
+
+});
+
+</script>
+  
 </body>
 </html>
