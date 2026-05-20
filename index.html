@@ -5,9 +5,13 @@
 <head>
 
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
-  <title>Feuille de Présence V2</title>
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  />
+
+  <title>Feuille de Présence</title>
 
   <script src="https://cdn.tailwindcss.com"></script>
 
@@ -35,7 +39,7 @@
 
   <div class="p-6 md:p-8 space-y-10">
 
-    <!-- INFOS FORMATION -->
+    <!-- INFORMATIONS FORMATION -->
 
     <div>
 
@@ -46,40 +50,34 @@
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 
         <input
-          id="formation"
           class="border rounded-xl p-3"
           placeholder="Intitulé Formation"
-        >
+        />
 
         <input
-          id="organisme"
           class="border rounded-xl p-3"
           placeholder="Organisme"
-        >
+        />
 
         <input
-          id="dateDebut"
           type="date"
           class="border rounded-xl p-3"
-        >
+        />
 
         <input
-          id="dateFin"
           type="date"
           class="border rounded-xl p-3"
-        >
+        />
 
         <input
-          id="horaires"
           class="border rounded-xl p-3"
           placeholder="07h00 à 14h00"
-        >
+        />
 
         <input
-          id="formateur"
           class="border rounded-xl p-3"
           placeholder="Nom formateur"
-        >
+        />
 
       </div>
 
@@ -118,25 +116,25 @@
           id="nom"
           class="border rounded-xl p-3"
           placeholder="Nom"
-        >
+        />
 
         <input
           id="prenom"
           class="border rounded-xl p-3"
           placeholder="Prénom"
-        >
+        />
 
         <input
           id="service"
           class="border rounded-xl p-3"
           placeholder="Service / Groupe"
-        >
+        />
 
         <input
           id="heure"
           type="time"
           class="border rounded-xl p-3"
-        >
+        />
 
       </div>
 
@@ -216,7 +214,18 @@
 
           </thead>
 
-          <tbody id="presence-table"></tbody>
+          <tbody id="presence-table">
+
+            <tr>
+              <td
+                colspan="5"
+                class="p-6 text-center text-slate-400"
+              >
+                Chargement...
+              </td>
+            </tr>
+
+          </tbody>
 
         </table>
 
@@ -230,15 +239,20 @@
 
 <script>
 
-const API_URL = "https://script.google.com/macros/s/AKfycbwd7eZMpW5v7RAE6IfBIuC60kLn6-yvLb8o7FVAn88LUAWtdJaGIynKKe0mjNvSpFpnFA/exec";
+const API_URL =
+"https://script.google.com/macros/s/AKfycbwd7eZMpW5v7RAE6IfBIuC60kLn6-yvLb8o7FVAn88LUAWtdJaGIynKKe0mjNvSpFpnFA/exec";
 
-const canvas = document.getElementById("signature-pad");
+const canvas =
+document.getElementById("signature-pad");
 
-const signaturePad = new SignaturePad(canvas);
+const signaturePad =
+new SignaturePad(canvas);
 
-const table = document.getElementById("presence-table");
+const table =
+document.getElementById("presence-table");
 
-const clearBtn = document.getElementById("clear-signature");
+const clearBtn =
+document.getElementById("clear-signature");
 
 clearBtn.addEventListener("click", () => {
 
@@ -246,75 +260,15 @@ clearBtn.addEventListener("click", () => {
 
 });
 
-function afficherPresences(data) {
-
-  table.innerHTML = "";
-
-  if (data.length === 0) {
-
-    table.innerHTML = `
-      <tr>
-        <td colspan="5" class="p-6 text-center text-slate-400">
-          Aucune présence enregistrée.
-        </td>
-      </tr>
-    `;
-
-    return;
-
-  }
-
-  data.forEach(presence => {
-
-    const row = `
-      <tr class="border-t">
-
-        <td class="p-4">${presence.nom}</td>
-
-        <td class="p-4">${presence.prenom}</td>
-
-        <td class="p-4">${presence.service}</td>
-
-        <td class="p-4">${presence.heure}</td>
-
-        <td class="p-4">
-          <img
-            src="${presence.signature}"
-            class="h-12"
-          />
-        </td>
-
-      </tr>
-    `;
-
-    table.innerHTML += row;
-
-const presences = JSON.parse(localStorage.getItem("presences")) || [];
-
-presences.push({
-  nom,
-  prenom,
-  service,
-  heure,
-  signature
-});
-
-localStorage.setItem(
-  "presences",
-  JSON.stringify(presences)
-);
- 
-  });
-
-}
-
 async function chargerPresences() {
 
   try {
 
-    const response = await fetch(API_URL);
+    const response =
+      await fetch(API_URL);
 
-    const data = await response.json();
+    const data =
+      await response.json();
 
     table.innerHTML = "";
 
@@ -322,7 +276,10 @@ async function chargerPresences() {
 
       table.innerHTML = `
         <tr>
-          <td colspan="5" class="p-6 text-center text-slate-400">
+          <td
+            colspan="5"
+            class="p-6 text-center text-slate-400"
+          >
             Aucune présence enregistrée.
           </td>
         </tr>
@@ -337,13 +294,21 @@ async function chargerPresences() {
       const row = `
         <tr class="border-t">
 
-          <td class="p-4">${presence.nom || ""}</td>
+          <td class="p-4">
+            ${presence.nom || ""}
+          </td>
 
-          <td class="p-4">${presence.prenom || ""}</td>
+          <td class="p-4">
+            ${presence.prenom || ""}
+          </td>
 
-          <td class="p-4">${presence.service || ""}</td>
+          <td class="p-4">
+            ${presence.service || ""}
+          </td>
 
-          <td class="p-4">${presence.heure || ""}</td>
+          <td class="p-4">
+            ${presence.heure || ""}
+          </td>
 
           <td class="p-4">
 
@@ -369,69 +334,31 @@ async function chargerPresences() {
 
 }
 
-const presencesSauvegardees =
-  JSON.parse(localStorage.getItem("presences")) || [];
+chargerPresences();
 
-if (presencesSauvegardees.length > 0) {
+setInterval(chargerPresences, 3000);
 
-  table.innerHTML = "";
+document
+.getElementById("submit-btn")
+.addEventListener("click", async () => {
 
-  presencesSauvegardees.forEach((presence) => {
+  const nom =
+    document.getElementById("nom").value;
 
-    const row = `
-      <tr class="border-t">
+  const prenom =
+    document.getElementById("prenom").value;
 
-        <td class="p-4">${presence.nom}</td>
+  const service =
+    document.getElementById("service").value;
 
-        <td class="p-4">${presence.prenom}</td>
-
-        <td class="p-4">${presence.service}</td>
-
-        <td class="p-4">${presence.heure}</td>
-
-        <td class="p-4">
-
-          <img
-            src="${presence.signature}"
-            class="h-12"
-          />
-
-        </td>
-
-      </tr>
-    `;
-
-    table.innerHTML += row;
-
-  });
-
-}
-
-
-
-document.getElementById("submit-btn").addEventListener("click", async () => {
-
-  const formation = document.getElementById("formation").value;
-
-  const organisme = document.getElementById("organisme").value;
-
-  const dateDebut = document.getElementById("dateDebut").value;
-
-  const dateFin = document.getElementById("dateFin").value;
-
-  const formateur = document.getElementById("formateur").value;
-
-  const nom = document.getElementById("nom").value;
-
-  const prenom = document.getElementById("prenom").value;
-
-  const service = document.getElementById("service").value;
-
-  const heure = document.getElementById("heure").value;
+  const heure =
+    document.getElementById("heure").value;
 
   if (!nom || !prenom) {
 
-    alert("Veuillez renseigner le nom et le prénom.");
+    alert(
+      "Veuillez renseigner le nom et le prénom."
+    );
 
     return;
 
@@ -439,112 +366,92 @@ document.getElementById("submit-btn").addEventListener("click", async () => {
 
   if (signaturePad.isEmpty()) {
 
-    alert("Veuillez signer avant validation.");
+    alert(
+      "Veuillez signer avant validation."
+    );
 
     return;
 
   }
 
-  const signature = signaturePad.toDataURL();
+  const signature =
+    signaturePad.toDataURL();
 
   const data = {
 
-  formation: document.getElementById("formation").value,
+    nom,
+    prenom,
+    service,
+    heure,
+    signature
 
-  organisme: document.getElementById("organisme").value,
+  };
 
-  dateDebut: document.getElementById("dateDebut").value,
+  try {
 
-  dateFin: document.getElementById("dateFin").value,
+    const response =
+      await fetch(API_URL, {
 
-  formateur: document.getElementById("formateur").value,
+      method: "POST",
 
-  nom: document.getElementById("nom").value,
+      body: JSON.stringify(data)
 
-  prenom: document.getElementById("prenom").value,
+    });
 
-  service: document.getElementById("service").value,
+    if (response.ok) {
 
-  heure: document.getElementById("heure").value,
+      alert("Présence enregistrée ✅");
 
-  signature: signaturePad.toDataURL()
+      signaturePad.clear();
 
-};
+      document.getElementById("nom").value = "";
+      document.getElementById("prenom").value = "";
+      document.getElementById("service").value = "";
 
-try {
+      chargerPresences();
 
-  const response = await fetch(API_URL, {
+    } else {
 
-    method: "POST",
+      alert("Erreur d'enregistrement");
 
-    body: JSON.stringify(data)
+    }
 
-  });
+  } catch(error) {
 
-  if (response.ok) {
+    console.error(error);
 
-    alert("Présence enregistrée ✅");
-
-    const row = `
-      <tr class="border-t">
-
-        <td class="p-4">${nom}</td>
-
-        <td class="p-4">${prenom}</td>
-
-        <td class="p-4">${service}</td>
-
-        <td class="p-4">${heure}</td>
-
-        <td class="p-4">
-          <img
-            src="${signature}"
-            class="h-12"
-          />
-        </td>
-
-      </tr>
-    `;
-
-    table.innerHTML += row;
-
-    signaturePad.clear();
-
-  } else {
-
-    alert("Erreur lors de l'enregistrement");
+    alert("Erreur JavaScript");
 
   }
 
-} catch(error) {
-
-  console.error(error);
-
-  alert("Erreur JavaScript");
-
-}
-
-
-
 });
 
-document.getElementById("reset-btn").addEventListener("click", () => {
+document
+.getElementById("reset-btn")
+.addEventListener("click", () => {
 
-  const password = prompt("Mot de passe administrateur");
+  const password =
+    prompt("Mot de passe administrateur");
 
-  if (password === "admin.edfaudreyfred") {
+  if (
+    password ===
+    "admin.edfaudreyfred"
+  ) {
 
     table.innerHTML = `
       <tr>
-        <td colspan="5" class="p-6 text-center text-slate-400">
+        <td
+          colspan="5"
+          class="p-6 text-center text-slate-400"
+        >
           Aucune présence enregistrée.
         </td>
       </tr>
     `;
 
-    alert("Réinitialisation visuelle effectuée ✅");
-localStorage.removeItem("presences");
-
+    alert(
+      "Réinitialisation visuelle effectuée ✅"
+    );
 
   } else {
 
@@ -558,5 +465,7 @@ localStorage.removeItem("presences");
 
 </body>
 </html>
+
+
 
 
