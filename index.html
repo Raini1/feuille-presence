@@ -4,7 +4,7 @@
 
 <head>
 
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8"/>
 
   <meta
     name="viewport"
@@ -32,14 +32,14 @@
     </h1>
 
     <p class="text-slate-300 mt-2">
-      Accessible via QR Code • Responsive • Mobile First
+      Temps réel • Firebase • QR Code
     </p>
 
   </div>
 
   <div class="p-6 md:p-8 space-y-10">
 
-    <!-- INFORMATIONS FORMATION -->
+    <!-- INFOS FORMATION -->
 
     <div>
 
@@ -242,7 +242,35 @@
 
 </div>
 
-<script>
+<script type="module">
+
+import {
+  initializeApp
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+
+import {
+  getDatabase,
+  ref,
+  push,
+  onValue,
+  remove
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+const firebaseConfig = {
+
+  databaseURL:
+  "https://feuille-presence-8ad2b-default-rtdb.firebaseio.com/"
+
+};
+
+const app =
+initializeApp(firebaseConfig);
+
+const db =
+getDatabase(app);
+
+const presenceRef =
+ref(db, "presences");
 
 const table =
 document.getElementById("presence-table");
@@ -253,25 +281,19 @@ document.getElementById("signature-pad");
 const signaturePad =
 new SignaturePad(canvas);
 
-let presences =
-JSON.parse(
-  localStorage.getItem("presences")
-) || [];
+document
+.getElementById("clear-signature")
+.addEventListener("click", () => {
 
-function sauvegarderPresences() {
+  signaturePad.clear();
 
-  localStorage.setItem(
-    "presences",
-    JSON.stringify(presences)
-  );
+});
 
-}
-
-function afficherPresences() {
+function afficherPresences(data) {
 
   table.innerHTML = "";
 
-  if (presences.length === 0) {
+  if (!data) {
 
     table.innerHTML = `
       <tr>
@@ -286,7 +308,7 @@ function afficherPresences() {
 
   }
 
-  presences.forEach((presence) => {
+  Object.values(data).forEach((presence) => {
 
     table.innerHTML += `
       <tr class="border-t">
@@ -314,19 +336,15 @@ function afficherPresences() {
 
 }
 
-afficherPresences();
+onValue(presenceRef, (snapshot) => {
 
-document
-.getElementById("clear-signature")
-.addEventListener("click", () => {
-
-  signaturePad.clear();
+  afficherPresences(snapshot.val());
 
 });
 
 document
 .getElementById("submit-btn")
-.addEventListener("click", () => {
+.addEventListener("click", async () => {
 
   const nom =
     document.getElementById("nom").value;
@@ -356,18 +374,32 @@ document
 
   }
 
-  presences.push({
+  await push(presenceRef, {
+
+    formation:
+      document.getElementById("formation").value,
+
+    organisme:
+      document.getElementById("organisme").value,
+
+    dateDebut:
+      document.getElementById("dateDebut").value,
+
+    dateFin:
+      document.getElementById("dateFin").value,
+
+    formateur:
+      document.getElementById("formateur").value,
 
     nom,
     prenom,
     service,
-    heure
+    heure,
+
+    signature:
+      signaturePad.toDataURL()
 
   });
-
-  sauvegarderPresences();
-
-  afficherPresences();
 
   alert("Présence enregistrée ✅");
 
@@ -381,20 +413,16 @@ document
 
 document
 .getElementById("reset-btn")
-.addEventListener("click", () => {
+.addEventListener("click", async () => {
 
   const password =
     prompt("Mot de passe administrateur");
 
   if (password === "admin.edfaudreyfred") {
 
-    presences = [];
+    await remove(presenceRef);
 
-    sauvegarderPresences();
-
-    afficherPresences();
-
-    alert("Présences réinitialisées ✅");
+    alert("Présences supprimées ✅");
 
   } else {
 
@@ -411,10 +439,20 @@ document
   let csv =
     "Nom,Prénom,Service,Heure\n";
 
-  presences.forEach((p) => {
+  const rows =
+    table.querySelectorAll("tr");
 
-    csv +=
-      `${p.nom},${p.prenom},${p.service},${p.heure}\n`;
+  rows.forEach((row) => {
+
+    const cols =
+      row.querySelectorAll("td");
+
+    if (cols.length > 0) {
+
+      csv +=
+        `${cols[0].innerText},${cols[1].innerText},${cols[2].innerText},${cols[3].innerText}\n`;
+
+    }
 
   });
 
@@ -442,6 +480,7 @@ document
 
 </body>
 </html>
+
 
 
 
