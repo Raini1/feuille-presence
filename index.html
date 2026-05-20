@@ -345,19 +345,27 @@ document.getElementById("submit-btn").addEventListener("click", async () => {
 
   const data = {
 
-    formation,
-    organisme,
-    dateDebut,
-    dateFin,
-    formateur,
+  formation: document.getElementById("formation").value,
 
-    nom,
-    prenom,
-    service,
-    heure,
-    signature
+  organisme: document.getElementById("organisme").value,
 
-  };
+  dateDebut: document.getElementById("dateDebut").value,
+
+  dateFin: document.getElementById("dateFin").value,
+
+  formateur: document.getElementById("formateur").value,
+
+  nom: document.getElementById("nom").value,
+
+  prenom: document.getElementById("prenom").value,
+
+  service: document.getElementById("service").value,
+
+  heure: document.getElementById("heure").value,
+
+  signature: signaturePad.toDataURL()
+
+};
 
   await fetch(API_URL, {
 
