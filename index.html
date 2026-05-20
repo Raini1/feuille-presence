@@ -39,50 +39,6 @@
 
   <div class="p-6 md:p-8 space-y-10">
 
-    <!-- INFORMATIONS FORMATION -->
-
-    <div>
-
-      <h2 class="text-xl font-semibold mb-4">
-        Informations Formation
-      </h2>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-
-        <input
-          class="border rounded-xl p-3"
-          placeholder="Intitulé Formation"
-        />
-
-        <input
-          class="border rounded-xl p-3"
-          placeholder="Organisme"
-        />
-
-        <input
-          type="date"
-          class="border rounded-xl p-3"
-        />
-
-        <input
-          type="date"
-          class="border rounded-xl p-3"
-        />
-
-        <input
-          class="border rounded-xl p-3"
-          placeholder="07h00 à 14h00"
-        />
-
-        <input
-          class="border rounded-xl p-3"
-          placeholder="Nom formateur"
-        />
-
-      </div>
-
-    </div>
-
     <!-- QR CODE -->
 
     <div class="bg-slate-50 rounded-2xl p-6 border border-dashed text-center">
@@ -95,10 +51,6 @@
         src="qrcode.jpg"
         class="w-56 h-56 rounded-2xl object-cover mx-auto"
       />
-
-      <p class="text-slate-500 mt-5">
-        Les stagiaires scannent ce QR code pour signer leur présence.
-      </p>
 
     </div>
 
@@ -214,18 +166,7 @@
 
           </thead>
 
-          <tbody id="presence-table">
-
-            <tr>
-              <td
-                colspan="5"
-                class="p-6 text-center text-slate-400"
-              >
-                Chargement...
-              </td>
-            </tr>
-
-          </tbody>
+          <tbody id="presence-table"></tbody>
 
         </table>
 
@@ -242,19 +183,18 @@
 const API_URL =
 "https://script.google.com/macros/s/AKfycbwd7eZMpW5v7RAE6IfBIuC60kLn6-yvLb8o7FVAn88LUAWtdJaGIynKKe0mjNvSpFpnFA/exec";
 
+const table =
+document.getElementById("presence-table");
+
 const canvas =
 document.getElementById("signature-pad");
 
 const signaturePad =
 new SignaturePad(canvas);
 
-const table =
-document.getElementById("presence-table");
-
-const clearBtn =
-document.getElementById("clear-signature");
-
-clearBtn.addEventListener("click", () => {
+document
+.getElementById("clear-signature")
+.addEventListener("click", () => {
 
   signaturePad.clear();
 
@@ -276,11 +216,9 @@ async function chargerPresences() {
 
       table.innerHTML = `
         <tr>
-          <td
-            colspan="5"
-            class="p-6 text-center text-slate-400"
-          >
-            Aucune présence enregistrée.
+          <td colspan="5"
+            class="p-6 text-center text-slate-400">
+            Aucune présence enregistrée
           </td>
         </tr>
       `;
@@ -291,29 +229,29 @@ async function chargerPresences() {
 
     data.forEach((presence) => {
 
-      const row = `
+      table.innerHTML += `
         <tr class="border-t">
 
           <td class="p-4">
-            ${presence.nom || ""}
+            ${presence.nom}
           </td>
 
           <td class="p-4">
-            ${presence.prenom || ""}
+            ${presence.prenom}
           </td>
 
           <td class="p-4">
-            ${presence.service || ""}
+            ${presence.service}
           </td>
 
           <td class="p-4">
-            ${presence.heure || ""}
+            ${presence.heure}
           </td>
 
           <td class="p-4">
 
             <img
-              src="${presence.signature || ""}"
+              src="${presence.signature}"
               class="h-12"
             />
 
@@ -321,8 +259,6 @@ async function chargerPresences() {
 
         </tr>
       `;
-
-      table.innerHTML += row;
 
     });
 
@@ -356,9 +292,7 @@ document
 
   if (!nom || !prenom) {
 
-    alert(
-      "Veuillez renseigner le nom et le prénom."
-    );
+    alert("Veuillez remplir les champs");
 
     return;
 
@@ -366,9 +300,7 @@ document
 
   if (signaturePad.isEmpty()) {
 
-    alert(
-      "Veuillez signer avant validation."
-    );
+    alert("Veuillez signer");
 
     return;
 
@@ -377,50 +309,39 @@ document
   const signature =
     signaturePad.toDataURL();
 
-  const data = {
-
-    nom,
-    prenom,
-    service,
-    heure,
-    signature
-
-  };
-
   try {
 
-    const response =
-      await fetch(API_URL, {
+    await fetch(API_URL, {
 
       method: "POST",
 
-      body: JSON.stringify(data)
+      body: JSON.stringify({
+
+        nom,
+        prenom,
+        service,
+        heure,
+        signature
+
+      })
 
     });
 
-    if (response.ok) {
+    alert("Présence enregistrée ✅");
 
-      alert("Présence enregistrée ✅");
+    signaturePad.clear();
 
-      signaturePad.clear();
+    document.getElementById("nom").value = "";
+    document.getElementById("prenom").value = "";
+    document.getElementById("service").value = "";
 
-      document.getElementById("nom").value = "";
-      document.getElementById("prenom").value = "";
-      document.getElementById("service").value = "";
-
-      chargerPresences();
-
-    } else {
-
-      alert("Erreur d'enregistrement");
-
-    }
+    chargerPresences();
 
   } catch(error) {
 
     console.error(error);
 
-    alert("Erreur JavaScript");
+    alert("Erreur");
 
   }
 
@@ -433,25 +354,11 @@ document
   const password =
     prompt("Mot de passe administrateur");
 
-  if (
-    password ===
-    "admin.edfaudreyfred"
-  ) {
+  if (password === "admin.edfaudreyfred") {
 
-    table.innerHTML = `
-      <tr>
-        <td
-          colspan="5"
-          class="p-6 text-center text-slate-400"
-        >
-          Aucune présence enregistrée.
-        </td>
-      </tr>
-    `;
+    table.innerHTML = "";
 
-    alert(
-      "Réinitialisation visuelle effectuée ✅"
-    );
+    alert("Réinitialisation visuelle effectuée");
 
   } else {
 
@@ -465,6 +372,8 @@ document
 
 </body>
 </html>
+
+
 
 
 
